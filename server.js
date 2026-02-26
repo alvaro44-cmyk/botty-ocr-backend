@@ -61,9 +61,13 @@ Si no puedes leer algún precio usa 0. Los precios deben ser números decimales.
     });
 
     const data = await response.json();
+    console.log('Respuesta Claude:', JSON.stringify(data).slice(0, 300));
     const texto = data.content?.[0]?.text ?? '';
-    const clean = texto.replace(/```json|```/g, '').trim();
-    const analisis = JSON.parse(clean);
+
+    // Extrae el JSON aunque venga con texto extra alrededor
+    const match = texto.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('No se encontro JSON en la respuesta: ' + texto.slice(0, 200));
+    const analisis = JSON.parse(match[0]);
     res.json(analisis);
 
   } catch (err) {
